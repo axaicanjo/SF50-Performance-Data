@@ -182,7 +182,7 @@ function lookup(kind,wt,alt,disa){
 const mach=(ktas,oat)=>ktas/(38.967854*Math.sqrt(oat+273.15));
 
 let mode='oat';
-const sgn=(x,d=0)=>(x>0?'+':x<0?'−':'')+Math.abs(x).toFixed(d);
+const sgn=(x,d=0)=>{const r=+x.toFixed(d);return (r>0?'+':r<0?'−':'')+Math.abs(r).toFixed(d)};
 const num=s=>{const v=parseFloat(String(s).replace(/[−–]/g,'-').replace(/,/g,''));return Number.isFinite(v)?v:NaN};
 
 function save(){try{localStorage.setItem('sf50cruise',JSON.stringify({wt:$('wt').value,alt:$('alt').value,tmp:$('tmp').value,mode}))}catch(e){}}
@@ -196,18 +196,18 @@ function calc(){
   }
   const isa=isaT(alt);
   const oat= mode==='oat'?t:isa+t, disa= mode==='oat'?t-isa:t;
-  $('tmpHint').textContent=`ISA at ${Math.round(alt).toLocaleString()} ft: ${sgn(isa,1)} °C · ${mode==='oat'?'ΔISA '+sgn(disa,1):'OAT '+sgn(oat,1)} °C`;
+  $('tmpHint').textContent=`ISA at ${Math.round(alt).toLocaleString()} ft: ${sgn(isa)} °C · ${mode==='oat'?'ΔISA '+sgn(disa):'OAT '+sgn(oat)} °C`;
   const wc=clamp(wt,4500,6000), ac=clamp(alt,5000,31000), dc=clamp(disa,-10,20);
   if(wc!==wt) warn.push(`Weight ${wt.toLocaleString()} lb is outside the 4,500–6,000 lb tables; showing ${wc.toLocaleString()} lb.`);
   if(ac!==alt) warn.push(`Altitude ${alt.toLocaleString()} ft is outside the 5,000–31,000 ft tables; showing ${ac.toLocaleString()} ft.`);
-  if(dc!==disa) warn.push(`ΔISA ${sgn(disa,1)} °C is outside the −10 to +20 °C tables; showing ISA ${sgn(dc)} °C.`);
+  if(dc!==disa) warn.push(`ΔISA ${sgn(disa)} °C is outside the −10 to +20 °C tables; showing ISA ${sgn(dc)} °C.`);
   const tas=lookup('KTAS',wc,ac,dc), ias=lookup('KIAS',wc,ac,dc);
   const oatUsed=isaT(ac)+dc;
   $('oTas').textContent=Math.round(tas);
   $('oIas').textContent=Math.round(ias);
   $('oMach').textContent=mach(tas,oatUsed).toFixed(3).replace(/^0/,'');
-  $('oIsa').textContent=sgn(dc,1);
-  $('oOat').textContent=sgn(oatUsed,1);
+  $('oIsa').textContent=sgn(dc);
+  $('oOat').textContent=sgn(oatUsed);
   $('warn').hidden=!warn.length; $('warn').textContent=warn.join(' ');
   $('wtTbl').innerHTML=WTS.map(w=>{
     const a=lookup('KTAS',w,ac,dc), b=lookup('KIAS',w,ac,dc);
@@ -221,7 +221,7 @@ function setMode(m){
   const alt=num($('alt').value), t=num($('tmp').value);
   if(Number.isFinite(alt)&&Number.isFinite(t)){
     const isa=isaT(alt);
-    $('tmp').value=String(Math.round((m==='oat'?isa+t:t-isa)*10)/10);
+    $('tmp').value=String(Math.round(m==='oat'?isa+t:t-isa));
   }
   mode=m;
   $('mOat').setAttribute('aria-pressed',m==='oat'); $('mIsa').setAttribute('aria-pressed',m==='isa');
