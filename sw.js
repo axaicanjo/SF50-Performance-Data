@@ -1,5 +1,5 @@
 // Caches the app on first visit so it opens with no connection afterwards.
-const CACHE = 'sf50-cruise-20261030-182002';
+const CACHE = 'sf50-cruise-20261030-182613';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

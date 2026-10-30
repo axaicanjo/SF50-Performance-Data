@@ -32,6 +32,7 @@
   --accent:#2fc6d6; --accent-ink:#04191c; --readout:#05090d; --readout-ink:#e8f3f5;
   --magenta:#ff5fd2; --cyan:#4fe0ee; --warn:#ffb54d; --warn-bg:#2a1e0c; color-scheme:dark}
 
+html{touch-action:manipulation}
 body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
 .wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -185,10 +186,14 @@ let mode='oat';
 const sgn=(x,d=0)=>{const r=+x.toFixed(d);return (r>0?'+':r<0?'−':'')+Math.abs(r).toFixed(d)};
 const num=s=>{const v=parseFloat(String(s).replace(/[−–]/g,'-').replace(/,/g,''));return Number.isFinite(v)?v:NaN};
 
-function save(){try{localStorage.setItem('sf50cruise',JSON.stringify({wt:$('wt').value,alt:$('alt').value,tmp:$('tmp').value,mode}))}catch(e){}}
+// A field cleared for typing still counts as its previous value until something is entered
+const raw=id=>{const el=$(id);return el.value.trim()===''&&el.dataset.prev!==undefined?el.dataset.prev:el.value};
+function setRaw(id,v){const el=$(id); if(el.value.trim()===''&&el.dataset.prev!==undefined) el.dataset.prev=v; else el.value=v;}
+
+function save(){try{localStorage.setItem('sf50cruise',JSON.stringify({wt:raw('wt'),alt:raw('alt'),tmp:raw('tmp'),mode}))}catch(e){}}
 
 function calc(){
-  const wt=num($('wt').value), alt=num($('alt').value), t=num($('tmp').value);
+  const wt=num(raw('wt')), alt=num(raw('alt')), t=num(raw('tmp'));
   const warn=[];
   if(![wt,alt,t].every(Number.isFinite)){
     ['oTas','oIas','oMach','oIsa','oOat'].forEach(k=>$(k).textContent='—');
@@ -218,10 +223,10 @@ function calc(){
 
 function setMode(m){
   if(m===mode) return;
-  const alt=num($('alt').value), t=num($('tmp').value);
+  const alt=num(raw('alt')), t=num(raw('tmp'));
   if(Number.isFinite(alt)&&Number.isFinite(t)){
     const isa=isaT(alt);
-    $('tmp').value=String(Math.round(m==='oat'?isa+t:t-isa));
+    setRaw('tmp',String(Math.round(m==='oat'?isa+t:t-isa)));
   }
   mode=m;
   $('mOat').setAttribute('aria-pressed',m==='oat'); $('mIsa').setAttribute('aria-pressed',m==='isa');
@@ -229,15 +234,25 @@ function setMode(m){
 }
 $('mOat').onclick=()=>setMode('oat');
 $('mIsa').onclick=()=>setMode('isa');
-$('flip').onclick=()=>{const v=num($('tmp').value); if(Number.isFinite(v)){$('tmp').value=String(-v);calc();}};
+$('flip').onclick=()=>{const v=num(raw('tmp')); if(Number.isFinite(v)){setRaw('tmp',String(-v));calc();}};
 document.querySelectorAll('.step[data-t]').forEach(b=>b.onclick=()=>{
-  const el=$(b.dataset.t), d=+b.dataset.d, v=num(el.value);
+  const id=b.dataset.t, d=+b.dataset.d, v=num(raw(id));
   const base=Number.isFinite(v)?v:0;
   const st=Math.abs(d), snapped=d>0?Math.ceil(base/st)*st:Math.floor(base/st)*st;
-  el.value=String(snapped===base?base+d:snapped);
+  $(id).value=String(snapped===base?base+d:snapped);
   calc();
 });
-['wt','alt','tmp'].forEach(id=>$(id).addEventListener('input',calc));
+['wt','alt','tmp'].forEach(id=>{
+  const el=$(id); let justFocused=false;
+  el.addEventListener('input',calc);
+  // First tap clears the field for typing; a second tap, or leaving it blank, brings the old value back
+  el.addEventListener('focus',()=>{el.dataset.prev=el.value; el.value=''; justFocused=true;});
+  el.addEventListener('click',()=>{
+    if(justFocused){justFocused=false; return;}
+    if(el.value.trim()==='') {el.value=el.dataset.prev; calc();}
+  });
+  el.addEventListener('blur',()=>{justFocused=false; if(el.value.trim()==='') {el.value=el.dataset.prev; calc();}});
+});
 
 // Example starting point (or your last inputs)
 let s={wt:'5500',alt:'25000',tmp:'-35',mode:'oat'};
