@@ -35,7 +35,9 @@
 html{touch-action:manipulation}
 body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
-.wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+/* Center the app on screen, both ways; it scrolls normally if taller than the screen */
+body{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+.wrap{width:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 h1{font-size:22px;font-weight:700;letter-spacing:.02em;margin:0}
 .tag{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
@@ -83,7 +85,6 @@ th:first-child,td:first-child{text-align:left}
 th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
 tr:last-child td{border-bottom:0}
 tr.cur td{color:var(--accent);font-weight:600}
-.note{font-size:12.5px;line-height:1.45;color:var(--muted);margin:0}
 </style>
 </head>
 <body>
@@ -154,7 +155,6 @@ tr.cur td{color:var(--accent);font-weight:600}
     </table>
   </div>
 
-  <p class="note">Corrected to this airplane's flight data: the AFM cruise tables (P/N 31452-002 Rev A1, pp. 5-88 to 5-139) plus a correction fitted to about 5,300 one-minute MCT segments from about 230 flight logs (Jul 2024–Nov 2026), from your SF50_Cruise_KTAS_Corrected_v2 and SF50_Cruise_KIAS_Corrected_v2 tables. Capped at VMO 250 KIAS and at Mach 0.528, the highest Mach the airplane reaches at MCT in level flight (below the AFM MMO). Speeds never increase with weight. Interpolated linearly between the 1,000 ft × 1 °C grid points and between the 4,500 / 5,000 / 5,500 / 6,000 lb sheets. Inputs outside the table range are held at the nearest edge, never extrapolated. Mach is computed from KTAS and OAT. For planning reference only; not FAA approved. Use the AFM for flight.</p>
 </div>
 
 <script>
