@@ -1,5 +1,5 @@
 // Caches the app so it opens with no connection, but always loads the newest version when online.
-const CACHE = 'sf50-cruise-20261112-182018';
+const CACHE = 'sf50-cruise-20261112-182948';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-512.png'];
 
 // cache:'reload' skips the browser's HTTP cache (GitHub Pages allows 10 minutes),

@@ -96,8 +96,8 @@ tr.cur td{color:var(--accent);font-weight:600}
   </header>
 
   <section class="readout" aria-live="polite">
-    <div class="ro tas"><span class="lbl">True airspeed</span><span class="val"><span id="oTas">—</span><small>KTAS</small></span></div>
     <div class="ro ias"><span class="lbl">Indicated</span><span class="val"><span id="oIas">—</span><small>KIAS</small></span></div>
+    <div class="ro tas"><span class="lbl">True airspeed</span><span class="val"><span id="oTas">—</span><small>KTAS</small></span></div>
     <div class="subrow">
       <div class="ro sm"><span class="lbl">Mach</span><span class="val" id="oMach">—</span></div>
       <div class="ro sm"><span class="lbl">ΔISA</span><span class="val"><span id="oIsa">—</span><small>°C</small></span></div>
@@ -150,7 +150,7 @@ tr.cur td{color:var(--accent);font-weight:600}
   <h2>At this altitude and temperature, by weight</h2>
   <div class="tblwrap">
     <table>
-      <thead><tr><th>Weight</th><th>KTAS</th><th>KIAS</th><th>Mach</th></tr></thead>
+      <thead><tr><th>Weight</th><th>KIAS</th><th>KTAS</th><th>Mach</th></tr></thead>
       <tbody id="wtTbl"></tbody>
     </table>
   </div>
@@ -216,7 +216,7 @@ function calc(){
   $('warn').hidden=!warn.length; $('warn').textContent=warn.join(' ');
   $('wtTbl').innerHTML=WTS.map(w=>{
     const a=lookup('KTAS',w,ac,dc), b=lookup('KIAS',w,ac,dc);
-    return `<tr class="${Math.abs(w-wc)<1?'cur':''}"><td>${w.toLocaleString()} lb</td><td>${a.toFixed(0)}</td><td>${b.toFixed(0)}</td><td>${mach(a,oatUsed).toFixed(3).replace(/^0/,'')}</td></tr>`;
+    return `<tr class="${Math.abs(w-wc)<1?'cur':''}"><td>${w.toLocaleString()} lb</td><td>${b.toFixed(0)}</td><td>${a.toFixed(0)}</td><td>${mach(a,oatUsed).toFixed(3).replace(/^0/,'')}</td></tr>`;
   }).join('');
   save();
 }
